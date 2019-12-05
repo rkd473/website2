@@ -1,0 +1,261 @@
+---
+title: "Project1"
+output: html_document
+---
+
+
+
+<div id="ryder-davis-rkd473" class="section level2">
+<h2>Ryder Davis rkd473</h2>
+<div id="the-datasets-i-have-chosen-both-are-about-professional-golf-statistics.-i-played-golf-for-my-high-school-so-i-have-a-deeper-than-average-understanding-of-the-game.-seeing-a-professional-play-just-amazes-me-as-how-good-they-are.-i-dont-think-many-people-realize-how-precise-and-consistent-you-have-to-be-to-even-play-in-a-pro-tournament.-i-expect-that-the-majority-of-the-statistics-will-be-very-close-among-all-the-players-because-winning-in-golf-at-that-level-comes-down-to-whether-or-not-you-had-a-good-dayweek." class="section level3">
+<h3>The datasets I have chosen both are about professional golf statistics. I played golf for my high school, so I have a deeper than average understanding of the game. Seeing a professional play just amazes me as how good they are. I don’t think many people realize how precise and consistent you have to be to even play in a pro tournament. I expect that the majority of the statistics will be very close among all the players because winning in golf at that level comes down to whether or not you had a good day/week.</h3>
+</div>
+<div id="the-initial-dataset-was-about-10-million-rows-long-with-a-couple-hundred-tournament-results-so-i-picked-out-the-earliest-tournament-and-the-latest-tournament-in-the-dataset.-after-tidying-there-was-over-1000-columns-with-various-statistics.-for-each-of-the-tournaments-i-had-chosen-i-selected-4-unique-statistics-that-i-found-to-be-important.-also-i-selected-the-average-score-in-both-datasets.-these-variables-i-chose-were-things-like-putts-per-round-driving-distance-and-accuracy-average-approach-distance-money-earned-and-a-few-more-fundamental-statistics." class="section level3">
+<h3>The initial dataset was about 10 million rows long with a couple hundred tournament results, so I picked out the earliest tournament and the latest tournament in the dataset. After tidying, there was over 1,000 columns with various statistics. For each of the tournaments I had chosen, I selected 4 unique statistics that I found to be important. Also, I selected the average score in both datasets. These variables I chose were things like putts per round, driving distance and accuracy, average approach distance, money earned, and a few more fundamental statistics.</h3>
+<pre class="r"><code>221-180</code></pre>
+<pre><code>## [1] 41</code></pre>
+<pre class="r"><code>187-180</code></pre>
+<pre><code>## [1] 7</code></pre>
+</div>
+<div id="for-the-tidy-process-i-had-to-do-a-pivot-wider-to-get-all-the-variables-as-a-separate-column-then-i-selected-the-important-to-me-variables.-i-chose-to-do-a-full-join-by-golfer-name-for-my-datasets-so-i-wouldnt-have-to-deal-with-na-and-so-that-all-the-golfers-in-my-joined-dataset-would-have-all-the-stats-i-wanted-to-see.-for-the-early-year-golf-dataset-i-lost-41-rows-and-for-the-later-golf-dataset-i-lost-7-rows.-the-joined-dataset-had-180-rows." class="section level3">
+<h3>For the tidy process, I had to do a pivot wider to get all the variables as a separate column, then I selected the important (to me) variables. I chose to do a full join by golfer name for my datasets so I wouldn’t have to deal with NA and so that all the golfers in my joined dataset would have all the stats I wanted to see. For the early year golf dataset, I lost 41 rows, and for the later golf dataset, I lost 7 rows. The joined dataset had 180 rows.</h3>
+<pre class="r"><code>library(tidyverse)
+library(cluster)
+cleandata&lt;-read.csv(&quot;~/Desktop/website2/golfdata.csv&quot;)
+cleandata2&lt;-cleandata
+cleandata2$Score2&lt;-as.numeric(as.character(cleandata2$Score2))
+cleandata2$Score1&lt;-as.numeric(as.character(cleandata2$Score1))
+
+cleandata3&lt;-cleandata2%&gt;%separate(col=PuttsMadeDist,into = c(&quot;Feet&quot;,&quot;Inches&quot;),sep=&quot;&#39; &quot;,convert=T)%&gt;%separate(col=Inches,into = c(&quot;In&quot;,NA),convert=T)%&gt;%mutate(PuttsMadeDist=Feet+(In/12))%&gt;%select(-Feet,-In)
+
+cleandata4&lt;-cleandata3%&gt;%separate(col=Money,into=c(NA,&quot;a&quot;,&quot;b&quot;,&quot;c&quot;))%&gt;%unite(a,b,c,col=&quot;Money&quot;,sep=&quot;&quot;,remove=TRUE,na.rm=TRUE)</code></pre>
+<pre><code>## Warning: Expected 4 pieces. Missing pieces filled with `NA` in 80 rows
+## [7, 8, 10, 17, 21, 22, 24, 26, 34, 41, 42, 43, 48, 49, 51, 53, 54, 55, 56,
+## 61, ...].</code></pre>
+<pre class="r"><code>cleandata4$DriveAcc&lt;-as.numeric(as.character(cleandata4$DriveAcc))
+cleandata4$DriveDist&lt;-as.numeric(as.character(cleandata4$DriveDist))
+cleandata4$Putts&lt;-as.numeric(as.character(cleandata4$Putts))
+cleandata4$ApproachDist&lt;-as.numeric(as.character(cleandata4$ApproachDist))
+cleandata4$OnePuttPerc&lt;-as.numeric(as.character(cleandata4$OnePuttPerc))
+cleandata4$ClubSpeed&lt;-as.numeric(as.character(cleandata4$ClubSpeed))
+cleandata4$Money&lt;-as.numeric(cleandata4$Money)
+cleandata4$Name&lt;-as.character(cleandata4$Name)
+
+finaldata&lt;-cleandata4</code></pre>
+</div>
+<div id="here-i-cleaned-up-my-data.-i-manipulated-the-dataset-to-make-all-of-the-variables-numeric.-this-consisted-of-changing-the-feet-and-inches-of-average-putt-distance-made-into-a-number-based-in-feet-only.-also-i-needed-to-remove-the-dollar-sign-and-commas-from-the-money-earned.-finally-most-things-were-defined-as-factors-when-i-called-the-dataset-so-i-switched-those-to-numeric." class="section level3">
+<h3>Here I cleaned up my data. I manipulated the dataset to make all of the variables numeric. This consisted of changing the feet and inches of average putt distance made into a number based in feet only. Also, I needed to remove the dollar sign and commas from the money earned. Finally, most things were defined as factors when I called the dataset, so I switched those to numeric.</h3>
+<pre class="r"><code>finaldata%&gt;%mutate(ScoreDiff=Score2-Score1,Score2n=-1*Score2,Score2_ntile=ntile(Score2n,100))%&gt;%select(-Score2n)%&gt;%select(Name,ScoreDiff,Score2,Score2_ntile)%&gt;%head()</code></pre>
+<pre><code>##             Name ScoreDiff Score2 Score2_ntile
+## 1  Cameron Champ      2.05  70.71           29
+## 2   Rory McIlroy     -1.71  69.04           99
+## 3      Luke List      1.91  70.97           18
+## 4 Dustin Johnson     -1.11  69.89           84
+## 5  Wyndham Clark      0.06  69.81           87
+## 6   Bubba Watson     -1.73  70.60           35</code></pre>
+<pre class="r"><code>div&lt;-(max(finaldata$ClubSpeed)-min(finaldata$ClubSpeed))/3 #3 sections of club head speed
+
+#create a categorical varibale
+finaldata&lt;-finaldata%&gt;%mutate(ClubSpeedCat = case_when(ClubSpeed&gt;(max(finaldata$ClubSpeed)-div) ~ &quot;High&quot;,(min(finaldata$ClubSpeed)+div)&lt;=ClubSpeed &amp;ClubSpeed&lt;=(max(finaldata$ClubSpeed)-div) ~ &quot;Med&quot;,ClubSpeed&lt;(min(finaldata$ClubSpeed)+div) ~ &quot;Slower&quot;))%&gt;%mutate(ScoreDiff=Score2-Score1)
+
+finaldata%&gt;%group_by(ClubSpeedCat)%&gt;%summarize_if(is.numeric,mean)%&gt;%arrange(desc(DriveAcc))</code></pre>
+<pre><code>## # A tibble: 3 x 13
+##   ClubSpeedCat     X DriveAcc DriveDist  Money Score2 Putts ApproachDist
+##   &lt;chr&gt;        &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;        &lt;dbl&gt;
+## 1 Slower       130.      65.5      288. 1.27e6   70.5  28.9         162.
+## 2 Med           63.5     60.6      298. 1.73e6   70.4  29.0         165.
+## 3 High          17.8     56.8      308. 3.07e6   70.2  29.0         163.
+## # … with 5 more variables: ClubSpeed &lt;dbl&gt;, OnePuttPerc &lt;dbl&gt;,
+## #   Score1 &lt;dbl&gt;, PuttsMadeDist &lt;dbl&gt;, ScoreDiff &lt;dbl&gt;</code></pre>
+<pre class="r"><code>finaldata%&gt;%group_by(ClubSpeedCat)%&gt;%summarize_if(is.numeric,median)</code></pre>
+<pre><code>## # A tibble: 3 x 13
+##   ClubSpeedCat     X DriveAcc DriveDist  Money Score2 Putts ApproachDist
+##   &lt;chr&gt;        &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;        &lt;dbl&gt;
+## 1 High           11      56.4      309  1.70e6   70.4  29.0         163.
+## 2 Med            57      60.6      299. 1.07e6   70.3  28.9         164.
+## 3 Slower        132.     66.4      289. 9.41e5   70.4  28.9         162.
+## # … with 5 more variables: ClubSpeed &lt;dbl&gt;, OnePuttPerc &lt;dbl&gt;,
+## #   Score1 &lt;dbl&gt;, PuttsMadeDist &lt;dbl&gt;, ScoreDiff &lt;dbl&gt;</code></pre>
+<pre class="r"><code>row1&lt;-finaldata%&gt;%summarise(mean=mean(Putts),sd=sd(Putts),var=var(Putts),quantile=IQR(Putts),min=min(Putts),med=median(Putts),max=max(Putts),ndist=n_distinct(Putts))%&gt;%round(2)
+
+row2&lt;-finaldata%&gt;%summarise(mean=mean(ApproachDist),sd=sd(ApproachDist),var=var(ApproachDist),quantile=IQR(ApproachDist),min=min(ApproachDist),med=median(ApproachDist),max=max(ApproachDist),ndist=n_distinct(ApproachDist))%&gt;%round(2)
+
+row3&lt;-finaldata%&gt;%summarise(mean=mean(Money),sd=sd(Money),var=var(Money),quantile=IQR(Money),min=min(Money),med=median(Money),max=max(Money),ndist=n_distinct(Money))%&gt;%round(2)
+
+row4&lt;-finaldata%&gt;%summarise(mean=mean(DriveAcc),sd=sd(DriveAcc),var=var(DriveAcc),quantile=IQR(DriveAcc),min=min(DriveAcc),med=median(DriveAcc),max=max(DriveAcc),ndist=n_distinct(DriveAcc))%&gt;%round(2)
+
+row5&lt;-finaldata%&gt;%summarise(mean=mean(DriveDist),sd=sd(DriveDist),var=var(DriveDist),quantile=IQR(DriveDist),min=min(DriveDist),med=median(DriveDist),max=max(DriveDist),ndist=n_distinct(DriveDist))%&gt;%round(2)
+
+StatTable&lt;-bind_rows(row1,row2,row3,row4,row5)
+
+GolfStat&lt;-c(&quot;Putts&quot;,&quot;ApproachDist&quot;,&quot;Money&quot;,&quot;DriveAcc&quot;,&quot;DriveDist&quot;)
+
+StatTable&lt;-cbind(GolfStat,StatTable)
+
+StatTable</code></pre>
+<pre><code>##       GolfStat       mean         sd          var   quantile       min
+## 1        Putts      28.97       0.46 2.100000e-01       0.62     27.71
+## 2 ApproachDist     163.57       4.55 2.073000e+01       5.38    154.60
+## 3        Money 1610720.69 1504029.51 2.262105e+12 1516732.50 102127.00
+## 4     DriveAcc      62.57       5.12 2.623000e+01       7.12     48.47
+## 5    DriveDist     294.56       8.48 7.189000e+01      11.70    271.30
+##          med        max ndist
+## 1      28.92      30.21   107
+## 2     163.10     176.80   108
+## 3 1061096.00 9684006.00   180
+## 4      62.44      75.72   173
+## 5     293.95     317.90   136</code></pre>
+<pre class="r"><code>#Grouped stats
+finaldata%&gt;%group_by(ClubSpeedCat)%&gt;%summarise(mean_putts=mean(Putts),sd_putts=sd(Putts),var_putts=var(Putts),quantileputts=IQR(Putts),min_putts=min(Putts),med_putts=median(Putts),max_putts=max(Putts),ndist_putts=n_distinct(Putts))</code></pre>
+<pre><code>## # A tibble: 3 x 9
+##   ClubSpeedCat mean_putts sd_putts var_putts quantileputts min_putts
+##   &lt;chr&gt;             &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;         &lt;dbl&gt;     &lt;dbl&gt;
+## 1 High               29.0    0.501     0.251         0.44       28.1
+## 2 Med                29.0    0.470     0.221         0.590      27.8
+## 3 Slower             28.9    0.445     0.198         0.635      27.7
+## # … with 3 more variables: med_putts &lt;dbl&gt;, max_putts &lt;dbl&gt;,
+## #   ndist_putts &lt;int&gt;</code></pre>
+<pre class="r"><code>#Correlation Matrix
+NumCor&lt;-finaldata%&gt;%select_if(is.numeric)%&gt;%cor
+
+NumCor</code></pre>
+<pre><code>##                           X     DriveAcc   DriveDist         Money
+## X              1.0000000000  0.582344089 -0.97613273 -0.3233162511
+## DriveAcc       0.5823440892  1.000000000 -0.58056248  0.0318885993
+## DriveDist     -0.9761327263 -0.580562481  1.00000000  0.3369622652
+## Money         -0.3233162511  0.031888599  0.33696227  1.0000000000
+## Score2         0.2440270693 -0.226871978 -0.24190194 -0.6201530984
+## Putts         -0.1074740747  0.136531649  0.11832569 -0.2667537141
+## ApproachDist  -0.1639759678  0.004887919  0.16169236  0.3528722556
+## ClubSpeed     -0.8234759937 -0.618739947  0.84311146  0.2822848408
+## OnePuttPerc    0.0496872765 -0.126074827 -0.07451994  0.0574122437
+## Score1         0.1418633573 -0.095826285 -0.11890558 -0.3595689813
+## PuttsMadeDist  0.1665882300  0.035262057 -0.17881466  0.0015331615
+## ScoreDiff     -0.0001847712 -0.044469295 -0.02670533 -0.0007094655
+##                    Score2       Putts ApproachDist   ClubSpeed OnePuttPerc
+## X              0.24402707 -0.10747407 -0.163975968 -0.82347599  0.04968728
+## DriveAcc      -0.22687198  0.13653165  0.004887919 -0.61873995 -0.12607483
+## DriveDist     -0.24190194  0.11832569  0.161692360  0.84311146 -0.07451994
+## Money         -0.62015310 -0.26675371  0.352872256  0.28228484  0.05741224
+## Score2         1.00000000  0.36969253 -0.293392988 -0.13589082 -0.18119858
+## Putts          0.36969253  1.00000000 -0.069766630  0.11582971 -0.60681063
+## ApproachDist  -0.29339299 -0.06976663  1.000000000  0.25081050 -0.03811339
+## ClubSpeed     -0.13589082  0.11582971  0.250810497  1.00000000 -0.08423302
+## OnePuttPerc   -0.18119858 -0.60681063 -0.038113393 -0.08423302  1.00000000
+## Score1         0.58942804  0.30427494 -0.135684120 -0.11673490 -0.34504130
+## PuttsMadeDist -0.09867441 -0.29267841 -0.087289901 -0.12959629  0.50397742
+## ScoreDiff     -0.01076541 -0.11088823 -0.042950455  0.04681321  0.29684770
+##                    Score1 PuttsMadeDist     ScoreDiff
+## X              0.14186336   0.166588230 -0.0001847712
+## DriveAcc      -0.09582629   0.035262057 -0.0444692954
+## DriveDist     -0.11890558  -0.178814658 -0.0267053333
+## Money         -0.35956898   0.001533161 -0.0007094655
+## Score2         0.58942804  -0.098674408 -0.0107654094
+## Putts          0.30427494  -0.292678409 -0.1108882320
+## ApproachDist  -0.13568412  -0.087289901 -0.0429504554
+## ClubSpeed     -0.11673490  -0.129596290  0.0468132133
+## OnePuttPerc   -0.34504130   0.503977424  0.2968477036
+## Score1         1.00000000  -0.343911632 -0.8141195111
+## PuttsMadeDist -0.34391163   1.000000000  0.3547713839
+## ScoreDiff     -0.81411951   0.354771384  1.0000000000</code></pre>
+</div>
+<div id="next-is-my-data-exploration.-i-created-a-categorical-variable-based-upon-the-club-head-speed-and-i-grouped-them-into-high-medium-or-slower-speeds.-after-grouping-by-these-categories-and-summarizing-by-mean-i-found-some-things-that-confirmed-my-assumptions-about-swing-speed-and-how-it-typically-relates-to-other-components-of-the-game.-first-the-slower-the-swing-the-better-drive-accuracy-which-makes-sense.-also-slower-swing-speeds-average-less-money-than-the-others-which-i-found-interesting-but-believable.-most-people-who-swing-slower-are-older-so-i-expected-them-to-have-more-precision-than-power.-looking-at-the-stat-table-i-created-the-iqr-really-piqued-my-interest.-for-example-the-iqr-of-putts-per-round-0.62.-that-is-insane.-being-able-to-decrease-your-putts-per-round-by-only-1-putt-would-jump-you-so-far-in-front-of-the-crowd.-this-is-why-i-think-so-highly-of-professional-golfers.-the-difference-in-being-the-best-player-in-the-world-and-the-100th-best-are-such-small-differences.-looking-at-the-iqr-of-drive-distance-it-is-only-11.7-yards.-that-is-such-a-small-distance-when-thinking-about-driving-the-ball-300-yards.-looking-at-my-correlation-matrix-there-was-not-anything-unexpected.-things-like-swing-speed-and-drive-distance-correlated-or-score-and-numer-of-putts.-unfortunately-i-did-not-see-any-out-of-the-box-correlations-like-drive-accuracy-and-putt-percentage.-most-of-the-high-correlations-were-within-a-component-of-the-game.-for-example-the-short-game-statistics-usually-correlated-somewhat-with-one-another." class="section level3">
+<h3>Next is my data exploration. I created a categorical variable based upon the club head speed, and I grouped them into high, medium, or slower speeds. After grouping by these categories and summarizing by mean, I found some things that confirmed my assumptions about swing speed and how it typically relates to other components of the game. First, the slower the swing, the better drive accuracy, which makes sense. Also, slower swing speeds average less money than the others, which I found interesting but believable. Most people who swing slower are older, so I expected them to have more precision than power. Looking at the stat table I created, the IQR really piqued my interest. For example, the IQR of putts per round 0.62. That is insane. Being able to decrease your putts per round by only 1 putt would jump you so far in front of the crowd. This is why I think so highly of professional golfers. The difference in being the best player in the world and the 100th best are such small differences. Looking at the IQR of drive distance, it is only 11.7 yards. That is such a small distance when thinking about driving the ball 300 yards. Looking at my correlation matrix, there was not anything unexpected. Things like swing speed and drive distance correlated, or score and numer of putts. Unfortunately, I did not see any “out of the box” correlations, like drive accuracy and putt percentage. Most of the high correlations were within a component of the game. For example, the short game statistics usually correlated somewhat with one another.</h3>
+<pre class="r"><code>library(ggplot2)
+finaldata%&gt;%ggplot(aes(DriveAcc,Money,color=ClubSpeedCat))+geom_point()+xlab(&quot;Driving Accuracy (%)&quot;)+ylab(&quot;Money Earned ($)&quot;)+ggtitle(&quot;Money Earned by Driving Accuracy&quot;)+theme_light()+scale_x_continuous(breaks=seq(50,100,5))</code></pre>
+<p><img src="/Project1_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>finaldata%&gt;%ggplot(aes(ClubSpeedCat,Money))+geom_bar(stat=&quot;summary&quot;,aes(fill=ClubSpeedCat))+theme_minimal()+xlab(&quot;Club Speed&quot;)+ylab(&quot;Money Earned ($)&quot;)+geom_errorbar(stat=&quot;summary&quot;)+ggtitle(&quot;Money Earned by Club Speed&quot;)</code></pre>
+<p><img src="/Project1_files/figure-html/unnamed-chunk-4-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>library(reshape2)
+mNumCor&lt;-melt(NumCor)
+
+mNumCor%&gt;%ggplot(aes(Var1, Var2, fill=value)) + 
+  geom_tile()+scale_fill_gradient2(low = &quot;blue&quot;, high = &quot;red&quot;, mid = &quot;white&quot;, 
+   midpoint = 0, limit = c(-1,1),name=&quot;Correlation&quot;)+theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+    size = 12, hjust = 1),axis.title.x = element_blank(),axis.title.y = element_blank())+coord_fixed()</code></pre>
+<p><img src="/Project1_files/figure-html/unnamed-chunk-4-3.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+<div id="looking-at-the-first-plot-dealing-with-driving-accuracy-and-money-earned-there-were-a-few-things-i-could-notice-a-little-easier.-the-majority-of-the-golfers-with-slower-swing-speeds-had-a-higher-driving-accuracy.-also-the-big-winners-in-terms-of-money-were-high-swing-speed-most-likely-the-younger-athletes-like-rory-mcilroy-who-have-the-precision-of-the-veterans-and-the-power-of-the-youth.-most-of-the-medium-to-high-money-winners-had-a-medium-swing-speed-which-i-would-presume-these-golfers-to-have-a-nice-balance-between-skill-and-power-which-is-why-they-would-win-decent-money.-overall-this-graph-is-nice-to-look-at-and-try-to-predict-the-ages-and-playstyles-of-the-golfers.-the-bar-graph-shows-an-interesting-significant-difference-in-money-earned.-the-golfers-who-swing-harder-made-significantly-more-money-than-those-who-swing-medium-speeds-and-the-same-for-medium-compared-to-slower.-this-is-kind-of-funny-because-the-average-golfer-gets-tremondously-worse-if-they-swing-harder.-another-piece-of-evidence-on-how-good-these-players-actually-are." class="section level3">
+<h3>Looking at the first plot dealing with driving accuracy and money earned, there were a few things I could notice a little easier. The majority of the golfers with slower swing speeds had a higher driving accuracy. Also, the big winners in terms of money were high swing speed, most likely the younger athletes like Rory McIlroy, who have the precision of the veterans and the power of the youth. Most of the medium to high money winners had a medium swing speed, which I would presume these golfers to have a nice balance between skill and power, which is why they would win decent money. Overall, this graph is nice to look at and try to predict the ages and playstyles of the golfers. The bar graph shows an interesting significant difference in money earned. The golfers who swing harder made significantly more money than those who swing medium speeds, and the same for medium compared to slower. This is kind of funny because the average golfer gets tremondously worse if they swing harder. Another piece of evidence on how good these players actually are.</h3>
+</div>
+<div id="next-is-the-correlation-heat-map-which-should-help-to-visualize-what-i-was-saying-earlier.-most-of-the-correlated-variables-are-intuitive-and-fall-into-a-similar-category-component-of-the-game." class="section level3">
+<h3>Next is the correlation heat map, which should help to visualize what I was saying earlier. Most of the correlated variables are intuitive and fall into a similar category/ component of the game.</h3>
+<pre class="r"><code>golfpc&lt;-finaldata%&gt;%select(-Name,-ClubSpeedCat,-ScoreDiff)%&gt;%mutate_at(c(4,5,6,9),function(x)x*-1)%&gt;%mutate_all(scale)
+cov(golfpc)%&gt;%round(2)</code></pre>
+<pre><code>##                   X DriveAcc DriveDist Money Score2 Putts ApproachDist
+## X              1.00     0.58     -0.98  0.32  -0.24  0.11        -0.16
+## DriveAcc       0.58     1.00     -0.58 -0.03   0.23 -0.14         0.00
+## DriveDist     -0.98    -0.58      1.00 -0.34   0.24 -0.12         0.16
+## Money          0.32    -0.03     -0.34  1.00  -0.62 -0.27        -0.35
+## Score2        -0.24     0.23      0.24 -0.62   1.00  0.37         0.29
+## Putts          0.11    -0.14     -0.12 -0.27   0.37  1.00         0.07
+## ApproachDist  -0.16     0.00      0.16 -0.35   0.29  0.07         1.00
+## ClubSpeed     -0.82    -0.62      0.84 -0.28   0.14 -0.12         0.25
+## OnePuttPerc   -0.05     0.13      0.07  0.06  -0.18 -0.61         0.04
+## Score1         0.14    -0.10     -0.12  0.36  -0.59 -0.30        -0.14
+## PuttsMadeDist  0.17     0.04     -0.18  0.00   0.10  0.29        -0.09
+##               ClubSpeed OnePuttPerc Score1 PuttsMadeDist
+## X                 -0.82       -0.05   0.14          0.17
+## DriveAcc          -0.62        0.13  -0.10          0.04
+## DriveDist          0.84        0.07  -0.12         -0.18
+## Money             -0.28        0.06   0.36          0.00
+## Score2             0.14       -0.18  -0.59          0.10
+## Putts             -0.12       -0.61  -0.30          0.29
+## ApproachDist       0.25        0.04  -0.14         -0.09
+## ClubSpeed          1.00        0.08  -0.12         -0.13
+## OnePuttPerc        0.08        1.00   0.35         -0.50
+## Score1            -0.12        0.35   1.00         -0.34
+## PuttsMadeDist     -0.13       -0.50  -0.34          1.00</code></pre>
+<pre class="r"><code>golf_pca&lt;-princomp(golfpc)
+summary(golf_pca,loadings=T)</code></pre>
+<pre><code>## Importance of components:
+##                           Comp.1    Comp.2    Comp.3     Comp.4     Comp.5
+## Standard deviation     1.8783735 1.6302669 1.2721473 0.93986000 0.85624375
+## Proportion of Variance 0.3225453 0.2429653 0.1479454 0.08075197 0.06702265
+## Cumulative Proportion  0.3225453 0.5655105 0.7134560 0.79420795 0.86123060
+##                            Comp.6     Comp.7     Comp.8     Comp.9
+## Standard deviation     0.70002952 0.61068786 0.55392388 0.42036463
+## Proportion of Variance 0.04479809 0.03409301 0.02804962 0.01615396
+## Cumulative Proportion  0.90602869 0.94012170 0.96817132 0.98432528
+##                           Comp.10     Comp.11
+## Standard deviation     0.38652922 0.148523193
+## Proportion of Variance 0.01365814 0.002016579
+## Cumulative Proportion  0.99798342 1.000000000
+## 
+## Loadings:
+##               Comp.1 Comp.2 Comp.3 Comp.4 Comp.5 Comp.6 Comp.7 Comp.8
+## X              0.494  0.125         0.146                0.248       
+## DriveAcc       0.314  0.170  0.485 -0.256               -0.436       
+## DriveDist     -0.496 -0.136        -0.141               -0.232       
+## Money          0.281 -0.277 -0.344         0.214 -0.622 -0.179 -0.498
+## Score2        -0.220  0.407  0.342 -0.140 -0.216        -0.201 -0.503
+## Putts                 0.439 -0.246  0.458 -0.384         0.225 -0.337
+## ApproachDist  -0.184  0.109  0.351  0.599  0.649 -0.158              
+## ClubSpeed     -0.469 -0.145                0.158                     
+## OnePuttPerc          -0.407  0.449 -0.136         0.136  0.606 -0.441
+## Score1         0.157 -0.427         0.426 -0.137  0.541 -0.431 -0.289
+## PuttsMadeDist         0.348 -0.352 -0.309  0.538  0.515        -0.299
+##               Comp.9 Comp.10 Comp.11
+## X              0.302  0.302   0.678 
+## DriveAcc       0.327 -0.522         
+## DriveDist     -0.197 -0.271   0.731 
+## Money                               
+## Score2                0.549         
+## Putts          0.136 -0.453         
+## ApproachDist  -0.136                
+## ClubSpeed      0.841                
+## OnePuttPerc          -0.171         
+## Score1                0.137         
+## PuttsMadeDist</code></pre>
+<pre class="r"><code>finaldata%&gt;%mutate(PC1=golf_pca$scores[,1], PC2=golf_pca$scores[,2])%&gt;%
+  ggplot(aes(x=PC1,y=PC2, color=ClubSpeedCat))+geom_point()</code></pre>
+<p><img src="/Project1_files/figure-html/unnamed-chunk-5-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>finaldata%&gt;%mutate(PC3=golf_pca$scores[,3], PC4=golf_pca$scores[,4])%&gt;%
+  ggplot(aes(x=PC3,y=PC4, color=ClubSpeedCat))+geom_point()</code></pre>
+<p><img src="/Project1_files/figure-html/unnamed-chunk-5-2.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+<div id="for-the-pca-i-first-converted-the-variables-that-you-want-to-be-low-like-score-to-negative-values.-i-then-scaled-and-ran-my-princomp-with-my-numeric-variables.-pc1-probably-best-represents-the-overall-golfer-but-it-seems-to-favor-the-players-with-better-short-game.-the-high-swing-speed-players-did-poorly-even-though-some-of-them-earned-a-lot-of-money-and-did-very-well.-most-of-the-variables-i-selected-were-highly-skill-based-components-of-the-game-so-it-would-make-sense-that-the-less-power-oriented-players-would-score-very-well.-for-pc2-it-looks-like-it-was-an-intential-ranking-of-short-game-and-the-skill-based-components-i-was-talking-about.-slower-swing-speeds-scored-the-best-then-medium-and-then-fast.-there-was-not-a-lot-of-separation-and-clear-grouping-but-that-is-expected-when-every-player-is-a-professional-and-has-a-shot-at-performing-very-well.-i-decided-to-go-with-4-principal-components-because-the-variance-explained-was-about-80.-i-dont-see-the-general-ranking-idea-in-these-two-principal-components-and-the-graph-has-everything-mixed-together." class="section level3">
+<h3>For the PCA, I first converted the variables that you want to be low, like score, to negative values. I then scaled and ran my princomp with my numeric variables. PC1 probably best represents the overall golfer, but it seems to favor the players with better short game. The high swing speed players did poorly, even though some of them earned a lot of money and did very well. Most of the variables I selected were highly skill based components of the game, so it would make sense that the less power oriented players would score very well. For PC2, it looks like it was an intential ranking of short game and the skill based components I was talking about. Slower swing speeds scored the best, then medium, and then fast. There was not a lot of separation and clear grouping, but that is expected when every player is a professional and has a shot at performing very well. I decided to go with 4 principal components because the variance explained was about 80%. I don’t see the general ranking idea in these two principal components, and the graph has everything mixed together.</h3>
+<p>Note that the <code>echo = FALSE</code> parameter was added to the code chunk to prevent printing of the R code that generated the plot.</p>
+</div>
+</div>
