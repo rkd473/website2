@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1576354991616.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1192823488",
+    "id" : "17CD8479",
+    "lastKnownWriteTime" : 1576355138,
+    "last_content_update" : 1576355138292,
+    "path" : "~/Desktop/website2/content/Bio.md",
+    "project_path" : "content/Bio.md",
+    "properties" : {
+        "cursorPosition" : "11,0",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "markdown"
+}

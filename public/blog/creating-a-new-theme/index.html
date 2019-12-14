@@ -4,11 +4,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="Chris Turner" />
-    <meta name="description" content="Describe your website">
+    <meta name="author" content="Ryder Davis" />
+    <meta name="description" content="This site is for projects I have completed as well as some miscellaneous information.">
     <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
     <title>Creating a New Theme</title>
-    <meta name="generator" content="Hugo 0.60.1" />
+    <meta name="generator" content="Hugo 0.61.0" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/css/main.css" /><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/tomorrow.min.css">
     
@@ -45,7 +45,7 @@
         
         <li><a href="/projects/">PROJECTS</a></li>
         
-        <li><a href="/resume/">RESUME</a></li>
+        <li><a href="/resume.pdf">RESUME</a></li>
         
       
       </ul>
@@ -284,7 +284,7 @@ $
 <li>Hugo created a js/ directory.</li>
 <li>Hugo claimed that it created 0 pages. It created a file and copied over static files, but didn't create any pages. That's because it considers a &ldquo;page&rdquo; to be a file created directly from a content file. It doesn't count things like the index.html files that it creates automatically.</li>
 </ol>
-<h4 id="the-home-page1">The Home Page</h4>
+<h4 id="the-home-page-1">The Home Page</h4>
 <p>Hugo supports many different types of templates. The home page is special because it gets its own type of template and its own template file. The file, layouts/index.html, is used to generate the HTML for the home page. The Hugo documentation says that this is the only required template, but that depends. Hugo's warning message shows that it looks for three different templates:</p>
 <pre><code>WARN: 2014/09/29 Unable to locate layout: [index.html _default/list.html _default/single.html]
 </code></pre><p>If it can't find any of these, it completely skips creating the home page. We noticed that when we built the site without having a theme installed.</p>
@@ -403,7 +403,7 @@ $ cat public/index.html
 &lt;body&gt; 
   &lt;p&gt;hugo says hello!&lt;/p&gt; 
 &lt;/html&gt;
-</code></pre><h4 id="live-reload1">Live Reload</h4>
+</code></pre><h4 id="live-reload-1">Live Reload</h4>
 <p>Note: If you're running the server with the <code>--watch</code> option, you'll see different content in the file:</p>
 <pre><code>$ cat public/index.html 
 &lt;!DOCTYPE html&gt; 

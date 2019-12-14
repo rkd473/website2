@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on Ryder Davis</title>
+    <link>/projects/</link>
+    <description>Recent content in Projects on Ryder Davis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    
+	<atom:link href="/projects/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Project1</title>
+      <link>/projects/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/projects/project1/</guid>
+      <description>Ryder Davis rkd473 The datasets I have chosen both are about professional golf statistics. I played golf for my high school, so I have a deeper than average understanding of the game. Seeing a professional play just amazes me as how good they are. I don’t think many people realize how precise and consistent you have to be to even play in a pro tournament. I expect that the majority of the statistics will be very close among all the players because winning in golf at that level comes down to whether or not you had a good day/week.</description>
+    </item>
+    
+    <item>
+      <title>Untitled</title>
+      <link>/projects/untitled/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/projects/untitled/</guid>
+      <description>R Markdown1 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
+When you click the Knit button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</description>
+    </item>
+    
+  </channel>
+</rss>

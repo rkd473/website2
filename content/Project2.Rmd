@@ -1,0 +1,196 @@
+---
+title: "Project 2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(carData)
+library(lmtest)
+library(sandwich)
+class_diag<-function(probs,truth){
+  
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,auc)
+}
+```
+
+## Ryder Davis rkd473
+
+The dataset I selected was one from the carData package called Arrests, which is about information regarding marijuana arrests. The variables are released, colour (race), year, age, sex, employed (Y/N), citizen (Y/N), and checks. Most of these are intuitive, and the ones that aren't are released, which is if the arrestee was released with a summons, and checks, which is the number of police data bases the arrestee's name was on.
+
+```{R}
+data<-Arrests
+man1<-manova(cbind(year,age,checks)~colour, data=data)
+summary(man1)
+summary.aov(man1)
+
+pairwise.t.test(data$age,data$colour,p.adj="none")
+pairwise.t.test(data$checks,data$colour,p.adj="none")
+
+1-((.95)^6)
+.05/6
+```
+The MANOVA results had a very small p value, indicating that for at least 1 numeric variable, at least 1 colour mean was different. Looking at the ANOVA results, age and checks had at least 1 colour where the mean was different, and the all colour means for year were not significantly different. There were only two groups in the variable colour, so the post-hoc tests would be the same as the ANOVA. Anyways, if we included these in the total tests performed, it would be 6 total tests(1 MANOVA, 3 ANOVA, 2 t-tests), so the probability of making at least one type I error is 0.265, and the boneferroni adjusted p-value to be used would be 0.0083. After this correction, age and checks were still significantly different across colour(black and white). The assumptions are random samples and independant observations, multivariate normality of dependant variables, omogeneity of within-group covariance matrices, linear relationships among dependant variables, no extreme univariate or multivariate outliers, and no multicollinearity. This is a lot of assumptions, so they are likely not all met.
+
+Next, I'm going to test if men have a different number of checks (appearances in police data bases) than women.  My null hypothesis is that the checks of men and women will be the same. My alternative hypothesis is that the checks of men will be different than the checks of women.
+
+```{R}
+data%>%group_by(sex)%>%summarize(means=mean(checks))%>%summarize(mean_diff=diff(means))
+
+rand_dist<-vector()
+for(i in 1:5000){
+new<-data.frame(checks=sample(data$checks),sex=data$sex) 
+rand_dist[i]<-mean(new[new$sex=="Female",]$checks)-
+              mean(new[new$sex=="Male",]$checks)
+}
+
+mean(rand_dist)*2  #p-value
+
+hist(rand_dist,main="",ylab=""); abline(v = 0.594,col="red")
+```
+
+The mean difference in checks of men and women was 0.594, and the p-value was determined to be 0.0013 (for the randomization distribution), so there is a true difference in the means. For the plot, the line indicating the calculated difference in means is such a significant value that it is too far away from the center to be seen.
+
+```{R}
+centdat<-data%>%mutate_if(is.numeric, function(x)x-mean(x))
+
+fit<-lm(checks~colour*age, data= centdat)
+summary(fit)
+
+centdat%>%ggplot(aes(checks,age,color=colour))+geom_point(aes(alpha=0.5))+geom_smooth(method = 'lm',se=F)
+
+resids<-fit$residuals
+fitvals<-fit$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, color='red')
+bptest(fit)
+
+ggplot()+geom_qq(aes(sample=resids))+geom_qq_line(aes(sample=resids))
+ks.test(resids, "pnorm", mean=0, sd(resids))
+
+coeftest(fit, vcov = vcovHC(fit))[,1:2] 
+
+fit2<-lm(checks~colour+age, data= centdat)
+summary(fit2)
+```
+
+For the linear regression model, the coefficient for the intercept is the predicted number of checks for a black person whose age is the mean. For colourWhite, the predicted number of checks would go down by 0.597 if the person was white instead of black. For age, each year increase would increase the predicted number of checks by 0.009. Finally, the interaction means that the age has more influence on checks for white individuals (slope is greater in the plot). Linearity is not met because the plot does not linear at all. Looking at the Breusch-Pagan test and the homoskedasticity plot, you can see that this model does not meet the assumption. Normality is also not met, seen in the QQ plot and Kolmogorov-Smirnov test. Robust standard errors would be used due to heteroskedasticity, and these robust standard errors were nearly identical to the original standard errors, so the significance of the variables would remain mostly unchanged. The adjusted r-squared is 0.046, so 4.6% of the variation in checks can be explained by this model. Comparing to the non-interaction model, age becomes a significant predictor when race is not controlled for.
+
+```{R}
+samp_distn<-replicate(5000, {
+  boot_dat<-centdat[sample(nrow(centdat),replace=TRUE),]
+  fit<-lm(checks~colour*age, data=boot_dat)
+  coef(fit)
+})
+
+samp_distn%>%t%>%as.data.frame%>%summarize_all(sd)
+```
+
+Once again, the standard errors of the bootstrapped model are nearly identical to the robust and original standard errors, so the p-values would remain similar.
+
+```{R}
+dat<-centdat%>%mutate(released=ifelse(released=="Yes",1,0))
+fit<-glm(released~colour+checks,data=dat,family="binomial")
+summary(fit)
+exp(coef(fit))
+
+prob<-predict(fit,type="response")
+table(predictions=ifelse(prob>.5,1,0),truth=dat$released)%>%addmargins
+
+(23+4304)/5226 #Accuracy
+4304/4334 #Sensititvity (TPR)
+23/892 #Specificity (TNR)
+4304/5173 #Recall (PPV)
+
+plotdat<-centdat
+plotdat$logit<-predict(fit)
+ggplot(plotdat,aes(x=logit,fill=released))+geom_density(alpha=.3)+geom_vline(xintercept=0,lty=2)
+
+#ROC
+library(plotROC)
+ROCplot<-ggplot(dat)+geom_roc(aes(d=released,m=prob), n.cuts=0) 
+
+ROCplot
+calc_auc(ROCplot)
+
+
+#CV
+k=10
+data1<-dat[sample(nrow(dat)),]
+folds<-cut(seq(1:nrow(dat)),breaks=k,labels=F)
+
+diags<-NULL
+for(i in 1:k){
+  train<-data1[folds!=i,]
+  test<-data1[folds==i,]
+  truth<-test$released
+  
+  fit<-glm(released~colour+checks,data=train,family="binomial")
+  probs<-predict(fit,newdata = test,type="response")
+  
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+
+apply(diags,2,mean)
+```
+
+Looking at the exponentiated coefficients, the colourWhite coefficient 1.73 is the odds ratio of white to black on being released. The checks coefficient means that for each additional check, the odds of being released are multiplied by 0.668. The accuracy of the model is 0.828, the sensitivity is 0.993, the specificity is 0.026, and the recall is 0.832. All of these numbers look really good, until you look at the specificity. The reason for this is that most arrests ended in the person being released, so the model predicts most of the time that the person will be released. This model doesn't have a good distinguishing factor to predict that someone was not released, which is why the specificity is so bad and everything else looks so good. Looking at the density by logit plot, you can see how this overlap would result in a low true negative rate. The ROC plot and AUC (0.695) are also bad because of this. The model mostly prediciting positives would accumulate false positives relatively quickly. For the 10-fold CV, the average out of sample accuracy is 0.828, the sensitivity is 0.994, and the recall is 0.832.
+
+```{R}
+library(glmnet)
+
+fit<-glm(released~.,data=dat,family="binomial")
+a<-model.matrix(fit)
+a<-a[,-1]
+
+y<-as.matrix(dat$released)
+cv<-cv.glmnet(a,y,family="binomial")
+
+lasso1<-glmnet(a,y,lambda=cv$lambda.1se,family="binomial")
+coef(lasso1)
+
+dat$White<-ifelse(dat$colour=="White",1,0)
+dat$EmployY<-ifelse(dat$employed=="Yes",1,0)
+dat$CitY<-ifelse(dat$citizen=="Yes",1,0)
+
+k=10
+data1<-dat[sample(nrow(dat)),]
+folds<-cut(seq(1:nrow(dat)),breaks=k,labels=F)
+
+diags<-NULL
+for(i in 1:k){
+  train<-data1[folds!=i,]
+  test<-data1[folds==i,]
+  truth<-test$released
+  
+  fit<-glm(released~White+checks+EmployY+CitY,data=dat,family="binomial")
+  probs<-predict(fit,newdata = test,type="response")
+  
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+
+apply(diags,2,mean)
+```
+
+The variables retained after performing a LASSO were colour, employed, citizen, and checks. After performing a 10-fold CV using only these variables, the average out of sample accuracy was 0.828, which is the same as the CV performed earlier. However, this model had a better sensitivity, specificity, recall, and AUC.

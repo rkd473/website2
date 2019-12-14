@@ -1,0 +1,193 @@
+---
+title: "HW 10"
+author: "SDS348 Fall 2019"
+date: ""
+output: html_document
+---
+
+```{r global_options, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.align="center", fig.height=5, fig.width=8)
+```
+
+## Ryder Davis rkd473
+
+**This homework is due on Nov 26, 2019 at 11:59pm. Please submit as a pdf file on Canvas.**
+
+*For all questions, include the python commands/functions that you used to find your answer. Answers without supporting code will not receive credit.*
+
+> ### How to submit this assignment
+>All homework assignments will be completed using R Markdown. These `.Rmd` files consist of >text/syntax (formatted using Markdown) alongside embedded R code. 
+>When you have completed the assignment (by adding R code inside codeblocks and supporting text outside of the codeblocks), create your document as follows:
+
+> - Click the "Knit" button (above) to create an .html file
+> - Open the html file in your internet browser to view
+> - Go to `File > Print` and print your .html file to a .pdf
+> - Upload the .pdf file to Canvas
+
+---
+
+## WARNING: DUE TO AN OLD VERSION OF RSTUDIO SERVER, PYTHON AND R CODE CHUNKS DO NOT INTERACT ON THE EDUCCOMP SERVERS. HOWEVER, IT SHOULD STILL KNIT CORRECTLY (i.e., YOU SHOULD STILL BE ABLE TO USE `r.obj_from_r` and `py$obj_from_python`). YOU COULD JUST KNIT IT EVERY TIME YOU ANSWER A QUESTION, BUT IT WOULD BE A VERY GOOD IDEA TO DO THIS ASSIGNMENT ON YOUR OWN RSTUDIO. UPDATING RSTUDIO ONLY TAKES A SECOND AND DOESN'T DELETE ANY PACKAGES, ETC. JUST GO TO https://rstudio.com/products/rstudio/download/#download AND DOWNLOAD/RUN/RESTART AND YOU SHOULD BE ALL SET. REGARDLESS, I HAVE ADDED ALTERNATIVE WAYS TO COMPLETE THE ASSIGNMENT (e.g., BY READING IN THE DATA FROM ONLINE OR FROM A CSV): STILL, I DO ENCOURAGE YOU TO PLAY WITH RETICULATE! THE REMAINING HOMEWORKS WILL BE DONE USING JUPYTER NOTEBOOKS.
+
+### Question 1: (2 pts)
+
+##### The dataset `faithful` contains information about eruptions of the Old Faithful geyser in Yellowstone National Park. The first few observations are listed below.
+
+```{R}
+library(reticulate)
+use_python("/usr/bin/python3")
+faithful<-faithful
+head(faithful)
+```
+
+##### Bring the dataset `faithful` over from R and look at it in Python. THE REST OF THIS ASSIGNMENT MUST BE COMPLETED IN PYTHON UNLESS OTHERWISE NOTED! What type of object is it? What are the minimum and maximum values of the variables eruptions and waiting? Put a dot after the object and hit tab: Look at all those functions!
+
+```{python}
+faithful=r.faithful 
+
+import numpy as np
+type(faithful)
+np.min(faithful["waiting"])
+np.max(faithful["waiting"])
+np.min(faithful["eruptions"])
+np.max(faithful["eruptions"])
+```
+
+*Your answer goes here. 1-2 sentences only.*
+
+---
+
+### Question 2: (4 pts)
+
+##### Now, import `numpy` and use functions from it to compute the mean, median, and variance for each variable. Finally, compute the correlation between the two variables using corrcoef (it will return a matrix). You can access individual variables in a dataframe using the `.` operator (e.g., `faithful.eruptions`).
+
+```{python}
+import numpy as np
+
+np.mean(faithful["waiting"])
+np.mean(faithful["eruptions"])
+np.median(faithful["waiting"])
+np.median(faithful["eruptions"])
+np.var(faithful["waiting"])
+np.var(faithful["eruptions"])
+np.corrcoef(faithful.eruptions,faithful.waiting)
+# your code here
+```
+
+*Your answer goes here. 1-2 sentences only.*
+
+---
+
+### Question 3: (6 pts)
+
+##### Recall how logical indexing of a dataframe works in python. To refresh your memory, in the example code below I ask python for the number of rows in the dataset where the variable `waiting` takes on values greater than 60. Then I ask for the average of the variable `eruptions` when the variable `waiting` is above 60.
+
+```{python}
+faithful[faithful.waiting>60].shape
+faithful[faithful.waiting>60].eruptions.mean()
+# or np.mean(faithful[faithful.waiting>60].eruptions)
+```
+
+
+##### 3.2 (1 pt) What is the standard deviation of the variable `eruptions`?
+
+```{python}
+# your code here
+```
+
+*Your answer goes here. 1-2 sentences only.*
+
+##### 3.3 (2 pts) What is the standard deviation of the variable `eruptions` when `waiting` is *less than* the median? 
+
+```{R}
+# your code here
+```
+
+*Your answer goes here. 1-2 sentences only.*
+
+##### 3.4 (2 pts) What is the standard deviation of the variable `eruptions` when `waiting` is *greater than* the median?
+
+```{R}
+# your code here
+```
+
+*Your answer goes here. 1-2 sentences only.*
+
+---
+
+### Question 4: (4 pts)
+
+##### Both variables are measured in minutes. Create two new variables named `eruptions_h` and `waiting_h` that give each variable **in hours rather than minutes** and add them to the dataset `faithful`. To help get you started, I have given you code that creates a new variable called eruptions_minus_one. Instead, computes the requested transformation. Print out the first few rows of the updated dataset using `head()`.
+
+```{python}
+# update the code below
+faithful['eruptions_minus_one']=(faithful['eruptions']-1)
+faithful
+del faithful['eruptions_minus_one']
+```
+
+
+### Question 5: (4 pts)
+
+##### Let's make some plots in python!
+
+##### 5.1 (1 pt) Create a boxplot of each original variable (eruptions and waiting) using the `boxplot()` function from matplotlib
+
+```{python}
+import matplotlib.pyplot as plt
+plt.boxplot(df['variable'])
+plt.show()
+#replace df, variable with your stuff
+```
+
+##### 5.2 (1 pt) Create a histogram of each original variable using the `hist()` function. 
+
+```{python}
+plt.hist(df['variable'])
+plt.show()
+```
+
+##### 5.3 (1 pt) Create a scatterplot by plotting both variables against each other using the `plot()` function. Note that plot takes two arguments: the x-axis variable and the y-axis variable. 
+
+```{python}
+#plt.scatter(df["var1"],df["var2"])
+```
+
+##### 6.1 (1 pt) Load the tips dataset from `seaborn` (a plotting package we will use later). Have a look at it below. What type of object is it?  
+
+```{python}
+import pandas as pd
+import seaborn as sns
+#pd.read_csv("http://www.justFYIyouCanReadDataFromURLs.com/myfile.csv")
+
+tips = sns.load_dataset('tips')
+iris = sns.load_dataset('iris') #yep, that iris
+
+tips.head()
+tips.describe()
+
+#using pandas groupby functionality
+groups = tips.groupby('sex')
+groups['tip'].mean()
+
+#tips.to_csv("tips.csv") #create tips.csv file in case reticulate isn't working so you can read it into R
+```
+
+*your answer here, 1-2 sentences*
+
+##### 6.2 (1 pt) Access tips using `py$df` in R and make a plot with ggplot illustrating the relationship between total_bill, tip, time, and sex (find an effective way to include all four variables in the same plot)!
+
+```{R}
+library(tidyverse)
+#tips<-read.csv("tips.csv")
+
+#your code here
+```
+
+
+```{R, echo=F}
+## DO NOT DELETE THIS BLOCK!
+sessionInfo()
+Sys.time()
+Sys.info()
+```
